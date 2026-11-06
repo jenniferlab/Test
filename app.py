@@ -1,44 +1,25 @@
-
 import streamlit as st
+from openai import OpenAI
 
-st.set_page_config(page_title="Compliance Risk Demo")
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-st.title("Compliance Risk Demo")
-st.write("Adjust the risk threshold to test compliance rules.")
+st.title("AI Compliance Demo")
 
-# Simulated transaction data
-transactions = {
-    "Transaction A": 25,
-    "Transaction B": 55,
-    "Transaction C": 82,
-    "Transaction D": 94,
-}
+text = st.text_area("Paste a transaction or compliance note")
 
-# Adjustable compliance rule
-threshold = st.slider(
-    "Risk Threshold",
-    min_value=0,
-    max_value=100,
-    value=60,
-    step=5
-)
+if st.button("Analyze"):
+    response = client.responses.create(
+        model="gpt-5.1-mini",
+        input=f"""
+        You are a compliance analyst.
+        Review the following text and identify:
+        1. Main compliance risk
+        2. Risk level: Low / Medium / High
+        3. Short explanation
 
-# Backend calculation
-flagged = sum(score >= threshold for score in transactions.values())
-passed = len(transactions) - flagged
+        Text:
+        {text}
+        """
+    )
 
-col1, col2 = st.columns(2)
-col1.metric("Risk Alerts", flagged)
-col2.metric("Passed", passed)
-
-st.subheader("Transaction Risk Results")
-
-for name, score in transactions.items():
-    st.write(f"**{name}** — Risk Score: {score}/100")
-    st.progress(score / 100)
-
-    if score >= threshold:
-        st.error("Flagged - High Risk")
-    else:
-        st.success("Passed")
-
+    st.write(response.output_text)
