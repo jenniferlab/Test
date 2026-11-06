@@ -9,7 +9,7 @@ text = st.text_area("Paste a transaction or compliance note")
 
 if st.button("Analyze"):
     response = client.responses.create(
-        model="gpt-5.1-mini",
+        model="gpt-6-luna",
         input=f"""
         You are a compliance analyst.
         Review the following text and identify:
